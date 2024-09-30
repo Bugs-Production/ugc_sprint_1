@@ -1,0 +1,74 @@
+services:
+
+  # ------- ugc_api ------ #
+  ugc_api:
+    build:
+      dockerfile: Dockerfile
+      context: ./ugc_api
+    container_name: ugc_api_service
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - ugc_network
+    volumes:
+      - ./ugc_api/src:/ugc_api/src
+
+  kafka:
+    image: bitnami/kafka:3.7.0
+    restart: on-failure
+    env_file:
+      - .env
+    networks:
+      - ugc_network
+    volumes:
+      - kafka_volume:/bitnami/kafka
+
+  kafka_ui:
+    image: provectuslabs/kafka-ui:v0.7.1
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+
+
+  etl:
+    build:
+      context: ./etl
+    env_file:
+      - ./etl/.env
+    restart: always
+    depends_on:
+      - kafka
+
+#
+#  clickhouse-node-1:
+#    image: clickhouse/clickhouse-server:24
+#    container_name: clickhouse-node-1
+#    hostname: clickhouse-node-1
+#    volumes:
+#      - ./data/nodes/node_1:/etc/clickhouse-server
+
+
+  # ------- common services ------ #
+  nginx:
+    container_name: ugc_nginx
+    build:
+      context: ./nginx/.
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - ugc_api
+    ports:
+      - "80:80"
+    networks:
+      - ugc_network
+
+
+networks:
+  ugc_network:
+
+volumes:
+  kafka_volume:
