@@ -14,24 +14,46 @@ services:
     volumes:
       - ./ugc_api/src:/ugc_api/src
 
+  # ------- kafka ------ #
+  zoo:
+    image: bitnami/zookeeper:3.9.1
+    tmpfs: "/zktmp"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: 'yes'
+    ports:
+      - "2181:2181"
+
   kafka:
     image: bitnami/kafka:3.7.0
-    restart: on-failure
-    env_file:
-      - .env
-    networks:
-      - ugc_network
+    depends_on:
+      - zoo
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_CFG_LISTENERS: INTERNAL://:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    ports:
+      - "9092:9092"
+      - "29092:29092"
     volumes:
-      - kafka_volume:/bitnami/kafka
+      - kafka_data:/bitnami/kafka
 
-  kafka_ui:
-    image: provectuslabs/kafka-ui:v0.7.1
-    env_file:
-      - .env
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
     ports:
       - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zoo:2181
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
 
-
+  # ------- etl ------ #
   etl:
     build:
       context: ./etl
@@ -41,6 +63,7 @@ services:
     depends_on:
       - kafka
 
+  # ------- clickhouse ------ #
 #
 #  clickhouse-node-1:
 #    image: clickhouse/clickhouse-server:24
@@ -71,4 +94,4 @@ networks:
   ugc_network:
 
 volumes:
-  kafka_volume:
+  kafka_data: {}
