@@ -22,6 +22,10 @@ services:
       ALLOW_ANONYMOUS_LOGIN: 'yes'
     ports:
       - "2181:2181"
+    networks:
+      - ugc_network
+    volumes:
+      - zookeeper_data:/bitnami/zookeeper
 
   kafka:
     image: bitnami/kafka:3.7.0
@@ -39,6 +43,8 @@ services:
     ports:
       - "9092:9092"
       - "29092:29092"
+    networks:
+      - ugc_network
     volumes:
       - kafka_data:/bitnami/kafka
 
@@ -52,6 +58,8 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_ZOOKEEPER: zoo:2181
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - ugc_network
 
   # ------- etl ------ #
   etl:
@@ -95,3 +103,4 @@ networks:
 
 volumes:
   kafka_data: {}
+  zookeeper_data: {}
