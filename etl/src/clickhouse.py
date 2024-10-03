@@ -1,9 +1,13 @@
+import logging
+
 from clickhouse_driver import Client
 from config import settings
 
+logger = logging.getLogger("etl")
+
 
 def initialize_clickhouse():
-    print("initializing clickhouse")
+    logger.info("initializing clickhouse...")
     cl = Client(host=settings.ch_host, port=settings.ch_port)
 
     cl.execute(
@@ -16,15 +20,16 @@ def initialize_clickhouse():
         "referrer_url Int NULL, video_id UUID NULL, from_quality Int NULL, to_quality Int NULL, "
         "filter_type String NULL, filter_value String NULL) Engine=MergeTree() ORDER BY timestamp"
     )
-    print("initializing clickhouse completed")
+    logger.info("initializing clickhouse completed")
 
 
 def check_clickhouse_info():
     with Client(host=settings.ch_host, port=settings.ch_port) as cl:
         dbs = cl.execute("SHOW DATABASES")
-        print("DATABASES:", dbs)
+        logger.info(f"DATABASES: {dbs}")
+
         table = cl.execute(f"SHOW TABLE {settings.ch_database}.{settings.ch_table}")
-        print("TABLES:", table)
+        logger.info(f"TABLES: {table}")
 
         # Пример вставки данных
         cl.execute(
