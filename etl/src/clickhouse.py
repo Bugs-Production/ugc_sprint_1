@@ -10,10 +10,12 @@ def initialize_clickhouse():
         f"CREATE DATABASE IF NOT EXISTS {settings.ch_database} ON CLUSTER company_cluster"
     )
     cl.execute(
-        f"CREATE TABLE IF NOT EXISTS {settings.ch_database}.{settings.ch_table} ON CLUSTER company_cluster (type String, "
-        f"timestamp DateTime64, user_id UUID NULL, fingerprint String, element String NULL, url String NULL, "
-        f"time Int NULL, id_film UUID NULL, film String NULL, original_quality Int NULL, updated_quality Int NULL, "
-        f"filter String NULL) Engine=MergeTree() ORDER BY timestamp"
+        f"CREATE TABLE IF NOT EXISTS {settings.ch_database}.{settings.ch_table} ON CLUSTER company_cluster "
+        "(event_type String, timestamp DateTime64, user_id UUID NULL, country String, device String, "
+        "element String NULL, page_url String NULL, duration Int NULL, current_time Int NULL, "
+        "referrer_url Int NULL, video_id UUID NULL, from_quality Int NULL, to_quality Int NULL, "
+        "filter_type String NULL, filter_value String NULL) Engine=MergeTree() ORDER BY timestamp"
+
     )
     print("initializing clickhouse completed")
 
