@@ -15,7 +15,6 @@ def initialize_clickhouse():
         "element String NULL, page_url String NULL, duration Int NULL, current_time Int NULL, "
         "referrer_url Int NULL, video_id UUID NULL, from_quality Int NULL, to_quality Int NULL, "
         "filter_type String NULL, filter_value String NULL) Engine=MergeTree() ORDER BY timestamp"
-
     )
     print("initializing clickhouse completed")
 
