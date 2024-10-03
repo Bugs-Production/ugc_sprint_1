@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     )
     ch_host: str = "localhost"
     ch_port: int = 9000
-    ch_database: str = "example"
+    ch_db: str = "example"
     ch_table: str = "events"
     ch_user: str = "default"
     ch_password: str = "default"
