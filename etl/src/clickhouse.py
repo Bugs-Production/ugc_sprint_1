@@ -26,3 +26,11 @@ def check_clickhouse_info():
         print("DATABASES:", dbs)
         table = cl.execute(f"SHOW TABLE {settings.ch_database}.{settings.ch_table}")
         print("TABLES:", table)
+
+        # Пример вставки данных
+        cl.execute(
+            f"INSERT INTO {settings.ch_database}.{settings.ch_table} "
+            "(event_type, timestamp, user_id, country, device, element, page_url) "
+            "VALUES ('click', '2024-10-03T14:30:00Z', 'user123', 'US', 'mobile', 'button_submit', "
+            "'https://example.com/submit')"
+        )
