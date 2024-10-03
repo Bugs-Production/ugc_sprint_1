@@ -75,7 +75,6 @@ services:
       context: ./etl
     env_file:
       - ./etl/.env
-    restart: always
     depends_on:
       - kafka
       - clickhouse-node1
