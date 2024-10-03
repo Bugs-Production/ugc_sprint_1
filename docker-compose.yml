@@ -9,29 +9,67 @@ services:
     env_file:
       - .env
     restart: always
+    depends_on:
+      kafka:
+        condition: service_healthy
     networks:
       - ugc_network
     volumes:
       - ./ugc_api/src:/ugc_api/src
 
-  kafka:
-    image: bitnami/kafka:3.7.0
-    restart: on-failure
-    env_file:
-      - .env
+  # ------- kafka ------ #
+  zoo:
+    image: bitnami/zookeeper:3.9.1
+    tmpfs: "/zktmp"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: 'yes'
+    ports:
+      - "2181:2181"
     networks:
       - ugc_network
     volumes:
-      - kafka_volume:/bitnami/kafka
+      - zookeeper_data:/bitnami/zookeeper
 
-  kafka_ui:
-    image: provectuslabs/kafka-ui:v0.7.1
-    env_file:
-      - .env
+  kafka:
+    image: bitnami/kafka:3.7.0
+    depends_on:
+      - zoo
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_CFG_LISTENERS: INTERNAL://:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    networks:
+      - ugc_network
+    volumes:
+      - kafka_data:/bitnami/kafka
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "kafka:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
     ports:
       - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zoo:2181
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - ugc_network
 
-
+  # ------- etl ------ #
   etl:
     build:
       context: ./etl
@@ -41,6 +79,7 @@ services:
     depends_on:
       - kafka
 
+  # ------- clickhouse ------ #
 #
 #  clickhouse-node-1:
 #    image: clickhouse/clickhouse-server:24
@@ -59,6 +98,7 @@ services:
     restart: always
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/site.conf:/etc/nginx/conf.d/site.conf
     depends_on:
       - ugc_api
     ports:
@@ -71,4 +111,5 @@ networks:
   ugc_network:
 
 volumes:
-  kafka_volume:
+  kafka_data: {}
+  zookeeper_data: {}

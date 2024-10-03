@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r /ugc_api/requirements.txt
 
 COPY src /ugc_api/src
 
-CMD ["fastapi", "run", "main.py", "--port", "80"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
