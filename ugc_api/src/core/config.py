@@ -12,6 +12,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
     project_name: str = Field("ugc_api", alias="PROJECT_NAME")
+    kafka_host: str = Field("localhost", alias="KAFKA_HOST")
+    kafka_port: int = Field(9092, alias="KAFKA_PORT")
 
 
 settings = Settings()
