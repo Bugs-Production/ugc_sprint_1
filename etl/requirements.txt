@@ -1,0 +1,2 @@
+pydantic-settings==2.3.4
+clickhouse-driver==0.2.9
