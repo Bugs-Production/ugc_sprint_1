@@ -23,22 +23,18 @@ class EventService(BaseEventService):
         self._producer = kafka_producer
 
     async def send_event(self, event: dict) -> None:
-        try:
-            # определяем модель по типу события
-            event_data = event.get("event")
-            event_model = EVENT_MODEL_MAP.get(event_data.get("event_type"))
+        # определяем модель по типу события
+        event_data = event.get("event")
+        event_model = EVENT_MODEL_MAP.get(event_data.get("event_type"))
 
-            # если модель найдена, валидируем событие
-            if event_model:
-                validated_event = event_model(**event_data)
-                await self._producer.send_and_wait(
-                    validated_event.event_type, validated_event.json().encode("utf-8")
-                )
-            else:
-                raise EventNotFound(f"Unsupported event type")
-
-        except ValidationError as e:
-            raise ValidationError(f"Validation error for event: {e.errors()}")
+        # если модель найдена, валидируем событие
+        if event_model:
+            validated_event = event_model(**event_data)
+            await self._producer.send_and_wait(
+                validated_event.event_type, validated_event.json().encode("utf-8")
+            )
+        else:
+            raise EventNotFound(f"Unsupported event type")
 
 
 @lru_cache()
