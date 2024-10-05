@@ -1,0 +1,34 @@
+@startuml
+title "User Generated Content Service"
+
+participant Client
+participant UGCServiceAPI as ugc
+participant Kafka
+participant ETL
+participant ClickHouse
+
+activate Client
+
+Client-->ugc: Receive event request
+deactivate Client
+
+activate ugc
+ugc->ugc: Validate event request
+ugc-> Kafka: Send event message
+deactivate ugc
+
+activate Kafka
+Kafka-> Kafka: Get 'event_type'
+Kafka-> Kafka: Create topic 'event_type' if not exists
+
+Kafka->ETL: Send event
+deactivate Kafka
+
+activate ETL
+
+ETL->ETL: Transform data for Clickhouse
+ETL-> ClickHouse: Load data
+
+deactivate ETL
+deactivate ClickHouse
+@enduml
