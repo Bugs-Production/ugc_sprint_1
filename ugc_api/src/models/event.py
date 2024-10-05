@@ -49,7 +49,7 @@ class QualityChangeEvent(BaseEvent):
 class VideoCompleteEvent(BaseEvent):
     event_type: str = EventTypes.VIDEO_COMPLETE
     video_id: str
-    duration: float
+    duration: int
 
 
 class SearchFilterUseEvent(BaseEvent):
