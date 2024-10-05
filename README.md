@@ -25,7 +25,7 @@
 Добавить переменные окружения
 ```
 cp .env.example .env
-cp /etl/.env.example /etl/.env
+cp etl/.env.example etl/.env
 ```
 Запустить docker-compose:
 ```
