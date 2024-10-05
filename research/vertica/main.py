@@ -4,7 +4,8 @@ import datetime
 import vertica_python
 from timer import timer
 
-connection_info = {
+# Параметры для подключения к базе данных Vertica
+db_config = {
     "host": "127.0.0.1",
     "port": 5433,
     "user": "dbadmin",
@@ -15,7 +16,8 @@ connection_info = {
 
 
 @timer
-def insert_data(data):
+def bulk_insert(data):
+    """Функция для вставки данных в таблицу netflix_titles."""
     count = 0
     while count <= 10000000:
 
@@ -31,7 +33,8 @@ def insert_data(data):
 
 
 @timer
-def select_data():
+def fetch_all_data():
+    """Функция для выборки всех данных из таблицы netflix_titles."""
     cursor.execute(
         """
             SELECT * FROM netflix_titles;
@@ -41,7 +44,7 @@ def select_data():
         print(row)
 
 
-with vertica_python.connect(**connection_info) as connection:  # 1
+with vertica_python.connect(**db_config) as connection:  # 1
     cursor = connection.cursor()  # 2
     cursor.execute(
         """  
@@ -91,5 +94,5 @@ with vertica_python.connect(**connection_info) as connection:  # 1
             )
             data.append(title)
 
-    insert_data(data)
-    select_data()
+    bulk_insert(data)
+    fetch_all_data()
