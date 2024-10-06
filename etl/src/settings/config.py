@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     ch_password: str = "default"
     kafka_host: str = "localhost"
     kafka_port: int = 29092
+    scheduler_interval_seconds: int = 60
 
 
 settings = Settings()

@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pydantic_core._pydantic_core import ValidationError
 
 from db.clickhouse import initialize_clickhouse
@@ -10,13 +11,12 @@ from etl_modules.extractors import KafkaExtractor
 from etl_modules.loaders import loader
 from etl_modules.transformers import event_transformer
 from logger import setup_logger
-from settings.config import BATCH_SIZE
+from settings.config import BATCH_SIZE, settings
 
 logger = logging.getLogger("etl")
 
 
 async def main():
-    initialize_clickhouse()
     async with KafkaBroker() as broker:
         batch = []
         extractor = KafkaExtractor(broker)
@@ -37,4 +37,13 @@ async def main():
 
 if __name__ == "__main__":
     setup_logger()
+    initialize_clickhouse()
+
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(main, "interval", seconds=settings.scheduler_interval_seconds)
+    scheduler.start()
+    try:
+        asyncio.get_event_loop().run_forever()
+    except (KeyboardInterrupt, SystemExit):
+        pass
     asyncio.run(main())
