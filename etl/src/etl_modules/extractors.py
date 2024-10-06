@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 
 import backoff
 from aiokafka.errors import KafkaConnectionError, KafkaError
-
 from etl_modules.brokers import KafkaBroker
 
 logger = logging.getLogger("etl")

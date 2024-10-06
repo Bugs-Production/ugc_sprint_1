@@ -3,14 +3,13 @@ import json
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from pydantic_core._pydantic_core import ValidationError
-
 from db.clickhouse import initialize_clickhouse
 from etl_modules.brokers import KafkaBroker
 from etl_modules.extractors import KafkaExtractor
 from etl_modules.loaders import loader
 from etl_modules.transformers import event_transformer
 from logger import setup_logger
+from pydantic_core._pydantic_core import ValidationError
 from settings.config import BATCH_SIZE, settings
 
 logger = logging.getLogger("etl")

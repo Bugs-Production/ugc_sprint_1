@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 import backoff
 from clickhouse_driver import Client
 from clickhouse_driver.errors import NetworkError, SocketTimeoutError
-
 from models.models import Event
 from settings.config import settings
 

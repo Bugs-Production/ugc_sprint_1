@@ -1,5 +1,4 @@
 from aiokafka import AIOKafkaConsumer
-
 from models.models import EventTypes
 from settings.config import settings
 

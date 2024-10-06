@@ -1,7 +1,6 @@
 import logging
 
 from clickhouse_driver import Client
-
 from settings.config import settings
 
 logger = logging.getLogger("etl")
