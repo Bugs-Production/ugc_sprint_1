@@ -35,4 +35,4 @@ class KafkaExtractor(BaseExtractor):
                     for message in messages:
                         yield message.value
         except KafkaError as e:
-            logger.info(f"Kafka error: {e}")
+            logger.error(f"Kafka error: {e}")
